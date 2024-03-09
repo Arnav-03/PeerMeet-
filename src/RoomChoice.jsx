@@ -60,6 +60,7 @@ const RoomChoice = () => {
           </div>
 
         </div>
+    
 
         <div className="bg-[#020813] animation-call2 cursor-pointer  h-[300px] lg:h-[300px] lg:w-[400px] w-[350px] border-2 rounded-3xl border-[#166888] text-center justify-center items-center flex flex-col m-2 p-5">
 
