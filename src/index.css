@@ -19,6 +19,11 @@ body{
   .animation-call {
     animation: animationCall 0.7s ease-in-out infinite;
   }
+  .animation-call2:hover {
+    transform: scale(1.05);
+    transition: ease-in-out;
+    transition-duration: 0.3s;
+  }
   @keyframes colorWave {
     0% {
       background-position: 0% 50%;
@@ -37,4 +42,12 @@ body{
     -webkit-background-clip: text;
     animation: colorWave 3s ease-in-out infinite linear; /* Adjust duration as needed */
   }
-  
+  .wave-text2 {
+    background: linear-gradient(to right, #eedfdf,#eedfdf, #289bc9, #289bc9, #19bdfd, #eedfdf,#eedfdf); /* Replace with your desired colors */
+    background-size: 200% 100%;
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    animation: colorWave 3s ease-in-out infinite linear; /* Adjust duration as needed */
+  }
+ 

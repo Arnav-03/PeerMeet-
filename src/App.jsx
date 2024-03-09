@@ -1,8 +1,8 @@
-import './App.css'
 import Intro from './Intro'
 import { Routes, Route } from 'react-router-dom'
-import Room from './Room'
 import RoomChoice from './RoomChoice'
+import DuoSpace from './DuoSpace/DuoSpace'
+import GroupSpace from './GroupSpace/GroupSpace'
 function App() {
 
   return (
@@ -11,7 +11,8 @@ function App() {
       <Routes>
         <Route path='/' element={<Intro />} />
         <Route path='/choiceOfroom' element={<RoomChoice />} />
-        <Route path='/room' element={<Room />} />
+        <Route path='/DuoSpace' element={<DuoSpace />} />
+        <Route path='/GroupSpace' element={<GroupSpace />} />
       </Routes>
       </div>
   )

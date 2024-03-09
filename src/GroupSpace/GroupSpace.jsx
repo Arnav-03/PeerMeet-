@@ -1,11 +1,11 @@
 import React from 'react'
 
-const Room = () => {
+const GroupSpace = () => {
   return (
     <div className='text-white'>
-        room
+      group space
     </div>
   )
 }
 
-export default Room
+export default GroupSpace

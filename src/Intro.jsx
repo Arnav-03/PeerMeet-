@@ -26,7 +26,6 @@ const Intro = () => {
     fontStyle: "normal",
   }
   const introToRoom = () => {
-    console.log('Navigating to /choiceOfroom');
     navigate('/choiceOfroom');
   };
   
