@@ -13,13 +13,38 @@ const DuoSpaceRoom = () => {
     const [remoteUsername, setremoteUsername] = useState(null);
 
     const socket = useSocket();
+    const sendStreams = useCallback(() => {
+        for (const track of mystream.getTracks()) {
+            peer.peer.addTrack(track, mystream);
+        }
+    }, [mystream]);
 
+   /*  const handleUserJoined = useCallback(({ username, id }) => {
+        console.log(`User ${username} joined room`);
+        setremoteID(id);
+        setremoteUsername(username);
+    }, []); */
     const handleUserJoined = useCallback(({ username, id }) => {
         console.log(`User ${username} joined room`);
         setremoteID(id);
         setremoteUsername(username);
-    }, []);
+        
+        // Automatically initiate the call when the second user joins
+        sendStreams();
+    }, [sendStreams]);
+    useEffect(() => {
+        const getCameraStream = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                setmystream(stream);
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+            }
+        };
 
+        getCameraStream();
+
+    }, []);
     const generateOffer = useCallback(async (remoteID) => {
         try {
             const offer = await peer.getOffer();//returns offer
@@ -36,12 +61,11 @@ const DuoSpaceRoom = () => {
         setremoteID(from);
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
         setmystream(stream);
-        console.log('incoming call ', from, offer)
-        const ans = await peer.getAnswer(offer);
-        socket.emit('call:accepted', { to: from, ans })
-
-    }, [socket])
-
+        console.log('incoming call ', from, offer);  
+        const ans = await peer.getAnswer(offer);    
+        socket.emit('call:accepted', { to: from, ans });
+    }, [socket]);
+    
     const style = {
         fontFamily: '"Madimi One", sans-serif',
         fontWeight: "600",
@@ -58,17 +82,15 @@ const DuoSpaceRoom = () => {
         fontStyle: "normal",
     }
 
-    const sendStreams = useCallback(() => {
-        for (const track of mystream.getTracks()) {
-            peer.peer.addTrack(track, mystream);
-        }
-    }, [mystream]);
+
+
 
     const handlecallaccepted = useCallback(({ from, ans }) => {
         peer.setLocalDescription(ans);
         console.log("call accepted");
-        sendStreams();
-    }, [sendStreams]);
+    }, []);
+    
+    
     
     const handlenegoneeded = useCallback(async () => {
         const offer = await peer.getOffer();
@@ -106,24 +128,6 @@ const DuoSpaceRoom = () => {
     }, [])
 
 
-    useEffect(() => {
-        const getCameraStream = async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                setmystream(stream);
-            } catch (error) {
-                console.error('Error accessing camera:', error);
-            }
-        };
-
-        getCameraStream();
-
-        return () => {
-            if (mystream) {
-                mystream.getTracks().forEach((track) => track.stop());
-            }
-        };
-    }, []);
     useEffect(() => {
         socket.on('user:joined', handleUserJoined);
        socket.on('incoming:call', handleincomingcall);
@@ -189,7 +193,7 @@ const DuoSpaceRoom = () => {
                 </div>
 
                 <div className="h-5/6 w-5/6  flex flex-col items-center text-lg mb-0 ">
-                    <div style={usernamestyle} className="m-0 p-0 text-[13px]">{remoteUsername? remoteUsername:"OTHER"}</div>
+                    <div style={usernamestyle} className="m-0 p-0 text-[13px]">{remoteUsername}</div>
 
                     <div className="h-full  w-full flex flex-col  items-center
                     ">
@@ -212,7 +216,7 @@ const DuoSpaceRoom = () => {
                             <div className="h-10 w-10 bg-gray-950 rounded-full">
                                 <img className='h-10 w-10 p-2' src={videoLogo} alt="" />
                             </div>
-                            <div onClick={() => { console.log("hello") }} className=" cursor-pointer h-12 w-12 bg-red-700 rounded-full">
+                            <div onClick={() => { sendStreams()}} className=" cursor-pointer h-12 w-12 bg-red-700 rounded-full">
                                 <img className='h-12 w-12 p-2' src={callLogo} alt="" />
                             </div>
                             <div className="h-10 w-10 bg-gray-950 rounded-full">
