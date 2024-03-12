@@ -48,7 +48,7 @@ const RoomChoice = () => {
         <div className="bg-[#020813]  animation-call2 cursor-pointer h-[300px] lg:h-[300px] lg:w-[400px] w-[350px] border-2 rounded-3xl border-[#b9ac36] text-center justify-center items-center flex flex-col m-2 p-5 mb-7">
 
           <div className="bg-[#b9ac36] mt-[-80px] lg:mt-[-90px]  rounded-full border-2 border-[#b9ac36] max-w-20 max-h-20 ">
-            <img className='h-20 w-20 p-3' src={p2proom} alt="" srcset="" />
+            <img className='h-20 w-20 p-3' src={p2proom} alt=""  />
           </div>
 
           <div style={titlestyle} className="text-2xl text-[#3da0ad] m-3">Duo Space</div>
@@ -65,7 +65,7 @@ const RoomChoice = () => {
         <div className="bg-[#020813] animation-call2 cursor-pointer  h-[300px] lg:h-[300px] lg:w-[400px] w-[350px] border-2 rounded-3xl border-[#166888] text-center justify-center items-center flex flex-col m-2 p-5">
 
           <div className="bg-[#166888] mt-[-80px] rounded-full border-2 border-[#166888] max-w-20 max-h-20 lg:mt-[-90px] ">
-            <img className='h-20 w-20 p-2 ' src={grpproom} alt="" srcset="" />
+            <img className='h-20 w-20 p-2 ' src={grpproom} alt=""  />
           </div>
 
           <div style={titlestyle} className="text-2xl text-[#b9ac36] m-3">Group Space</div>

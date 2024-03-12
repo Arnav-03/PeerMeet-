@@ -1,42 +1,87 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import doodle1 from '../assets/doodle1.png';
 import '../index.css';
+import { useSocket } from '../context/SocketProvider'
+import { useNavigate } from "react-router-dom"
 
 const DuoSpace = () => {
+  const socket = useSocket();
+  const navigate = useNavigate();
+
   const DuoandGroupstyle = {
     fontFamily: '"Madimi One", sans-serif',
     fontWeight: "600",
     fontStyle: "normal",
   };
+
   const [username, setusername] = useState('');
   const [errorOnSubmit, seterrorOnSubmit] = useState(false);
   const [shakeOnError, setShakeOnError] = useState(false);
 
+  const createRoomId = () => {
+    const randomFourDigitNumber = Math.floor(1000 + Math.random() * 9000);
+    const roomId = randomFourDigitNumber.toString();
+      return roomId;
+  };
+  
   const handleHostSubmit = (e) => {
     e.preventDefault();
-
     if (username.trim() === '') {
-      seterrorOnSubmit(true);
-      setShakeOnError((prev) => !prev); 
-      return;
+        seterrorOnSubmit(true);
+        setShakeOnError((prev) => !prev);
+        return;
     }
-
     console.log("host", username);
     seterrorOnSubmit(false);
-  };
+    if (socket) {
+        const roomHostId = createRoomId();
+        socket.emit("room:join", { user: username, roomId: roomHostId });
+        console.log(' data:', { username, roomHostId });
+    } else {
+        console.error("Socket is null or undefined.");
+    }
+};
+
+const handleJoinRoom = useCallback(({ username, roomId }) => {
+  console.log(username)
+  const Naame = username;
+  const RooomId = roomId;
+  console.log(Naame, RooomId);
+  navigate(`/DuoSpaceRoom/${RooomId}`);
+}, [navigate]);
+
+
+  useEffect(() => {
+      socket.on("room:join", handleJoinRoom);
+    return () => {
+      socket.off("room:join", handleJoinRoom);
+    };
+  }, [socket]);
 
   const handleJoinSubmit = (e) => {
     e.preventDefault();
-
     if (username.trim() === '') {
-      seterrorOnSubmit(true);
-      setShakeOnError((prev) => !prev); 
-      return;
+        seterrorOnSubmit(true);
+        setShakeOnError((prev) => !prev);
+        return;
     }
-
     console.log("join", username);
     seterrorOnSubmit(false);
-  };
+
+    if (socket) {
+        const roomId = prompt('Enter Room ID:'); // Prompt the user to enter the room ID
+        if (roomId) {
+            socket.emit("room:join", { user: username, roomId: roomId });
+            console.log(' data:', { username, roomId });
+        } else {
+            // Handle case where the user cancels or enters an empty room ID
+            console.log('Room ID not provided or invalid');
+        }
+    } else {
+        console.error("Socket is null or undefined.");
+    }
+};
+
 
   useEffect(() => {
     if (shakeOnError) {
@@ -60,7 +105,7 @@ const DuoSpace = () => {
       <div className="">
         <form className={`text-center m-5 p-5 ${shakeOnError ? 'shake-animation' : ''}`} action="">
           <input
-            className={`bg-[#020813] p-5 m-10 outline-none rounded-md border-[1px] ${errorOnSubmit ? 'border-[#e62525]' : 'border-[#f8ecec]'} `}
+            className={`bg-[#020813] text-xl p-5 m-10 outline-none rounded-md border-[1px] ${errorOnSubmit ? 'border-[#e62525]' : 'border-[#f8ecec]'} `}
             onChange={(e) => { setusername(e.target.value); seterrorOnSubmit(false) }}
             placeholder='Enter a Username'
             type='text'
@@ -71,14 +116,16 @@ const DuoSpace = () => {
 
         <div className="flex justify-around m-5 p-5">
           <button
-            className="uppercase p-5 px-6 rounded-xl bg-[#c7b405]"
+            className="uppercase  p-5 px-6 rounded-xl bg-[#c7b405]"
             onClick={handleHostSubmit}
+            style={DuoandGroupstyle}
           >
             host
           </button>
           <button
             className="bg-[#188ab8]  p-5  px-6 rounded-xl uppercase"
             onClick={handleJoinSubmit}
+            style={DuoandGroupstyle}
           >
             join
           </button>
