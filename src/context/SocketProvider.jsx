@@ -11,7 +11,8 @@ export const useSocket = () => {
 
 export const SocketProvider = (props) => {
   const socket = useMemo(() =>
-   io("http://localhost:8000"), 
+   io("https://peermeet-backend.onrender.com/"), //    io("http://localhost:8000"), io("https://peermeet-backend.onrender.com/")
+
    []);
 
   return (
