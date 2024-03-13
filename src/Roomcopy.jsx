@@ -1,92 +1,109 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import ReactPlayer from 'react-player'
-import micLogo from './assets/mic.png';
-import callLogo from './assets/call.png';
-import videoLogo from './assets/video.png';
 
 
 const Roomcopy = () => {
-    const style = {
-        fontFamily: '"Madimi One", sans-serif',
-        fontWeight: "600",
-        fontStyle: "normal",
-    }
-    const titlestyle = {
-        fontFamily: '"Rock Salt", cursive',
-        fontWeight: "400",
-        fontStyle: "normal",
-    }
-    const usernamestyle = {
-        fontFamily: '"Balsamiq Sans", sans-serif',
-        fontWeight: "600",
-        fontStyle: "normal",
-    }
+  /*   const socket = useSocket();
+    const [remoteID, setremoteID] = useState(null)
+    const [mystream, setmystream] = useState(null)
+    const [remoteStream, setremoteStream] = useState(null)
+
+    const handleUserJoined = useCallback(({ username, id }) => {
+        console.log(`User ${username} joined room`);
+        setremoteID(id);
+    }, []);
+
+    const handlecall = useCallback(async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+            const offer = await peer.getOffer();
+            socket.emit('user:call', { to: remoteID, offer })
+            setmystream(stream);
+        } catch (error) {
+            console.error('Error accessing camera and/or microphone:', error);
+            handlecall();
+        }
+    }, [remoteID, socket]);
+
+    const handleincomingcall = useCallback(async ({ from, offer }) => {
+        setremoteID(from);
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        setmystream(stream);
+        console.log('incoming call ', from, offer)
+        const ans = await peer.getAnswer(offer);
+        socket.emit('call:accepted', { to: from, ans })
+
+    }, [socket])
+
+
+    const sendStreams = useCallback(() => {
+        for (const track of mystream.getTracks()) {
+            peer.peer.addTrack(track, mystream);
+        }
+    }, [mystream]);
+
+    const handlecallaccepted = useCallback(({ from, ans }) => {
+        peer.setLocalDescription(ans);
+        console.log("call accepted");
+        sendStreams();
+    }, [sendStreams]);
+
+    const handlenegoneeded = useCallback(async () => {
+        const offer = await peer.getOffer();
+        socket.emit("peer:nego:needed", { offer, to: remoteID })
+    }, [remoteID, socket])
+
+    useEffect(() => {
+        peer.peer.addEventListener("negotiationneeded", handlenegoneeded);
+        return () => {
+            peer.peer.removeEventListener("negotiationneeded", handlenegoneeded);
+        }
+    }, [handlenegoneeded])
+
+    const handlenegoincoming = useCallback(async ({ from, offer }) => {
+        const ans = await peer.getAnswer(offer);
+        socket.emit("peer:nego:done", { to: from, ans })
+    }, [socket])
+
+    const handlenegoneededfinal = useCallback(async ({ ans }) => {
+        await peer.setLocalDescription(ans);
+    }, [])
+
+    useEffect(() => {
+        peer.peer.addEventListener('track', async e => {
+            const remoteStream = e.streams;
+            setremoteStream(remoteStream[0]);
+        })
+
+    }, [])
+
+
+
+    useEffect(() => {
+        socket.on('user:joined', handleUserJoined);
+        socket.on('incoming:call', handleincomingcall);
+        socket.on('call:accepted', handlecallaccepted);
+        socket.on('peer:nego:needed', handlenegoincoming);
+        socket.on('peer:nego:final', handlenegoneededfinal);
+
+
+        return () => {
+            socket.off('user:joined', handleUserJoined);
+            socket.off('incoming:call', handleincomingcall);
+            socket.off('call:accepted', handlecallaccepted);
+            socket.off('peer:nego:needed', handlenegoincoming);
+            socket.off('peer:nego:final', handlenegoneededfinal);
+
+
+        };
+    }, [socket, handleUserJoined, handleincomingcall, handlecallaccepted, handlenegoneededfinal, handlenegoincoming]); */
+
     return (
-        <div className='text-white flex flex-col items-center h-screen'>
-
-            <div className='text-[#ffffff] text-3xl   m-2' style={style} >
-                PeerMeet</div>
-            <div style={titlestyle} className="text-2xl text-[#3da0ad] mt-[-10px] mb-2">Duo Space</div>
-
-            <div className="flex flex-col lg:flex-row h-5/6 w-full gap-4 justify-center items-center">
-
-                <div className="h-5/6 w-5/6  flex flex-col items-center text-xl border-[2px] border-[#c5c3ba]">
-                    <div style={usernamestyle} className="">Arnav</div>
-
-                    <div className="h-full  w-full bg-[#1d1a1a] flex flex-col  items-center ">
-
-                        <div className="h-full "></div>
-
-                        <div className="flex items-end gap-6 m-2">
-                            <div className="h-12 w-12 bg-gray-950 rounded-full">
-                                <img className='h-12 w-12 p-2' src={videoLogo} alt="" />
-                            </div>
-                            <div className="h-14 w-14 bg-red-700 rounded-full">
-                                <img className='h-14 w-14 p-2' src={callLogo} alt="" />
-                            </div>
-                            <div className="h-12 w-12 bg-gray-950 rounded-full">
-                                <img className='h-12 w-12 p-2' src={micLogo} alt="" />
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-                <div className="h-5/6 w-5/6  flex flex-col items-center text-xl border-[2px] border-[#c5c3ba]">
-                    <div style={usernamestyle} className="">Arnav</div>
-                    <div className="h-full  w-full bg-[#1d1a1a] flex flex-col  items-center ">
-
-                        <div className="h-full flex justify-end items-center ">
-                            <div className="text-lg">
-                            waiting for someone to join...
-
-                            </div>
-                        </div>
-
-                        <div className="flex items-end gap-6 m-2">
-                            <div className="h-12 w-12 bg-gray-950 rounded-full">
-                                <img className='h-12 w-12 p-2' src={videoLogo} alt="" />
-                            </div>
-                            <div className="h-14 w-14 bg-red-700 rounded-full">
-                                <img className='h-14 w-14 p-2' src={callLogo} alt="" />
-                            </div>
-                            <div className="h-12 w-12 bg-gray-950 rounded-full">
-                                <img className='h-12 w-12 p-2' src={micLogo} alt="" />
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
+        <div className='flex flex-col p-3 bg-[#2b2a2b] text-white h-screen justify-center items-center text-center'>
+         
 
 
+        </div> 
+    );
+};
 
-
-            </div>
-
-
-
-        </div>
-    )
-}
-
-export default Roomcopy
+export default Roomcopy;

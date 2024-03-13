@@ -3,11 +3,10 @@ import ReactPlayer from 'react-player'
 import micLogo from '../assets/mic.png';
 import callLogo from '../assets/call.png';
 import videoLogo from '../assets/video.png';
+import peer from './PeerService/peer'; 
 import { useSocket } from '../context/SocketProvider';
-import peer from './PeerService/peer';
 
-
-const Room = () => {
+const DuoSpaceRoom= () => {
     const socket = useSocket();
     const [remoteID, setremoteID] = useState(null)
     const [mystream, setmystream] = useState(null)
@@ -102,44 +101,110 @@ const Room = () => {
 
         };
     }, [socket, handleUserJoined, handleincomingcall, handlecallaccepted, handlenegoneededfinal, handlenegoincoming]);
-
+    const style = {
+        fontFamily: '"Madimi One", sans-serif',
+        fontWeight: "600",
+        fontStyle: "normal",
+    }
+    const titlestyle = {
+        fontFamily: '"Rock Salt", cursive',
+        fontWeight: "400",
+        fontStyle: "normal",
+    }
+    const usernamestyle = {
+        fontFamily: '"Balsamiq Sans", sans-serif',
+        fontWeight: "600",
+        fontStyle: "normal",
+    }
+    const [remoteUsername, setremoteUsername] = useState(null);
     return (
-        <div className='flex flex-col p-3 bg-[#2b2a2b] text-white h-screen justify-center items-center text-center'>
-            <div className="flex flex-col justify-center items-center">
-               <h4>{remoteID ? ` Connected with ${remoteID}` : "no one in the room"}</h4>
-               <div className="flex flex-row">
-               <button className='bg-white text-black w-[150px] rounded m-1 p-1' onClick={sendStreams}>send Streams<br></br><span className='text-red-700 font-extrabold text-lg'>press this</span></button>
-                <button  className='bg-white text-black w-14 rounded m-1 p-1' onClick={handlecall}>call</button>
+        <div className='text-white flex flex-col items-center h-screen'>
 
-               </div>
+            <div className='text-[#ffffff] text-sm md:text-xl   m-2' style={style} >
+                PeerMeet</div>
+            <div style={titlestyle} className="text-sm text-[#3da0ad] mt-[-10px] mb-[55px] md:mb-[10px] md:text-xl">Duo Space</div>
 
+            <div className="flex flex-col md:flex-row h-5/6 w-full gap-4 justify-center items-center">
 
-                <div className="flex flex-row ">
-                <div className="flex bg-[#131213] flex-col  w-[600px] h-[500px] m-5 px-5 mt-0 mb-0 justify-center items-center">
-                    <h1 className='bg-[#cf4040] p-1  rounded-xl text-black w-[60px] font-bold mb-2 mt-[-80px]'>
-                        you</h1>
-                        {mystream && <ReactPlayer
-                            height="350px"
-                            width="500px"
-                            playing
-                            muted
-                            url={mystream} />}
+                <div className="h-5/6 w-5/6  flex flex-col items-center text-lg mb-0 ">
+
+                    <div style={usernamestyle} className="text-[13px]">You</div>
+
+                    <div className="h-full  w-full flex flex-col  items-center
+                    ">
+
+                        <div className="h-full ">
+                            {mystream &&
+                                <ReactPlayer
+                                    playing
+                                    height="100%"
+                                    width="100%"
+                                    style={{ pointerEvents: 'none' }}
+                                    muted
+                                    url={mystream} />}
+
+                        </div>
+
+                        <div className="flex items-end gap-6 mt-[-60px]  ">
+                            <div onClick={handlecall} className="h-10 w-10 bg-gray-950 rounded-full">
+                                <img className='h-10 w-10 p-2' src={videoLogo} alt="" />
+                            </div>
+                            <div onClick={() => { console.log("hello") }} className=" cursor-pointer h-12 w-12 bg-red-700 rounded-full">
+                                <img className='h-12 w-12 p-2' src={callLogo} alt="" />
+                            </div>
+                            <div className="h-10 w-10 bg-gray-950 rounded-full">
+                                <img className='h-10 w-10 p-2' src={micLogo} alt="" />
+                            </div>
+
+                        </div>
                     </div>
-                    <div className="flex bg-[#131213] flex-col  w-[600px] h-[500px] m-5 px-5 mt-0 mb-0 justify-center items-center">
-                    <h1 className='bg-[#cf4040] p-1  rounded-xl text-black w-[60px] font-bold mb-2 mt-[-80px]'>
-                            other</h1>
-                        {remoteStream && <ReactPlayer
-                            height="350px"
-                            width="500px"
-                            playing
-                            url={remoteStream} />}
+
+                </div>
+
+                <div className="h-5/6 w-5/6  flex flex-col items-center text-lg mb-0 ">
+                    <div style={usernamestyle} className="m-0 p-0 text-[13px]">{remoteUsername}</div>
+
+                    <div className="h-full  w-full flex flex-col  items-center
+    ">
+
+                        <div className="h-full ">
+                            {remoteStream &&
+                                <ReactPlayer
+                                    playing
+                                    height="100%"
+                                    width="100%"
+                                    style={{ pointerEvents: 'none' }}
+                                    muted
+
+                                    url={remoteStream} />}
+
+                        </div>
+
+
+                        <div className="flex items-end gap-6 mt-[-60px]  ">
+                            <div className="h-10 w-10 bg-gray-950 rounded-full">
+                                <img className='h-10 w-10 p-2' src={videoLogo} alt="" />
+                            </div>
+                            <div onClick={() => { sendStreams() }} className=" cursor-pointer h-12 w-12 bg-red-700 rounded-full">
+                                <img className='h-12 w-12 p-2' src={callLogo} alt="" />
+                            </div>
+                            <div className="h-10 w-10 bg-gray-950 rounded-full">
+                                <img className='h-10 w-10 p-2' src={micLogo} alt="" />
+                            </div>
+
+                        </div>
                     </div>
+
                 </div>
 
 
-            </div>
-        </div>
-    );
-};
 
-export default Room;
+
+            </div>
+
+
+
+        </div>
+    )
+}
+export default DuoSpaceRoom
