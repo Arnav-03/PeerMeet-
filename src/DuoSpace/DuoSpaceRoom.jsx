@@ -3,18 +3,26 @@ import ReactPlayer from 'react-player'
 import micLogo from '../assets/mic.png';
 import callLogo from '../assets/call.png';
 import videoLogo from '../assets/video.png';
-import peer from './PeerService/peer'; 
+import userLogo from '../assets/user.png';
+import closevLogo from '../assets/videoclose.png';
+import closemLogo from '../assets/micclose.png';
+
+import peer from './PeerService/peer';
 import { useSocket } from '../context/SocketProvider';
 
-const DuoSpaceRoom= () => {
+const DuoSpaceRoom = () => {
     const socket = useSocket();
     const [remoteID, setremoteID] = useState(null)
     const [mystream, setmystream] = useState(null)
     const [remoteStream, setremoteStream] = useState(null)
+    const [isHost, setIsHost] = useState(false); // State to track if current user is the host
 
     const handleUserJoined = useCallback(({ username, id }) => {
         console.log(`User ${username} joined room`);
         setremoteID(id);
+
+        setIsHost(socket.id === id);
+
     }, []);
 
     const handlecall = useCallback(async () => {
@@ -116,7 +124,7 @@ const DuoSpaceRoom= () => {
         fontWeight: "600",
         fontStyle: "normal",
     }
-    const [remoteUsername, setremoteUsername] = useState(null);
+    const [closevideobutton, setclosevideobutton] = useState(true);
     return (
         <div className='text-white flex flex-col items-center h-screen'>
 
@@ -126,12 +134,28 @@ const DuoSpaceRoom= () => {
 
             <div className="flex flex-col md:flex-row h-5/6 w-full gap-4 justify-center items-center">
 
+
                 <div className="h-5/6 w-5/6  flex flex-col items-center text-lg mb-0 ">
 
-                    <div style={usernamestyle} className="text-[13px]">You</div>
 
-                    <div className="h-full  w-full flex flex-col  items-center
-                    ">
+                    <div className={`h-full  w-full flex flex-col  items-center ${mystream ? "" : "bg-[#242121] "} py-1
+                    `}>
+                        {!mystream &&
+                            (
+                                <div className=" h-full flex justify-center items-center ">
+                                    <div className="bg-gray-950
+                                    h-[150px] w-[150px] rounded-full
+                                   mt-[40px]
+                                    md:h-[260px] md:w-[260px]
+                                     md:mt-[80px]
+                                    lg:h-[300px] lg:w-[300px]
+                                     lg:mt-[60px] flex justify-center items-center ">
+                                        <img className='h-5/6 w-5/6'
+                                            src={userLogo} alt="" />
+
+                                    </div>
+                                </div>
+                            )}
 
                         <div className="h-full ">
                             {mystream &&
@@ -141,19 +165,25 @@ const DuoSpaceRoom= () => {
                                     width="100%"
                                     style={{ pointerEvents: 'none' }}
                                     muted
+
                                     url={mystream} />}
 
                         </div>
 
+
                         <div className="flex items-end gap-6 mt-[-60px]  ">
-                            <div onClick={handlecall} className="h-10 w-10 bg-gray-950 rounded-full">
-                                <img className='h-10 w-10 p-2' src={videoLogo} alt="" />
+                            <div onClick={() => {
+                                handlecall();
+                                setclosevideobutton(false);
+                            }}
+                                className="h-10 w-10 bg-gray-950 rounded-full">
+                                <img className='h-10 w-10 p-1.5' src={closevideobutton ? closevLogo : videoLogo} alt="" />
                             </div>
-                            <div onClick={() => { console.log("hello") }} className=" cursor-pointer h-12 w-12 bg-red-700 rounded-full">
+                            <div className=" cursor-pointer h-12 w-12 bg-red-700 rounded-full">
                                 <img className='h-12 w-12 p-2' src={callLogo} alt="" />
                             </div>
                             <div className="h-10 w-10 bg-gray-950 rounded-full">
-                                <img className='h-10 w-10 p-2' src={micLogo} alt="" />
+                                <img className='h-10 w-10 p-2' src={closemLogo} alt="" />
                             </div>
 
                         </div>
@@ -161,11 +191,29 @@ const DuoSpaceRoom= () => {
 
                 </div>
 
-                <div className="h-5/6 w-5/6  flex flex-col items-center text-lg mb-0 ">
-                    <div style={usernamestyle} className="m-0 p-0 text-[13px]">{remoteUsername}</div>
 
-                    <div className="h-full  w-full flex flex-col  items-center
-    ">
+
+                <div className="h-5/6 w-5/6  flex flex-col items-center text-lg mb-0 ">
+
+
+                    <div className={`h-full  w-full flex flex-col  items-center ${remoteStream ? "" : "bg-[#242121] "} py-1
+                    `}>
+                        {!remoteStream &&
+                            (
+                                <div className=" h-full flex justify-center items-center ">
+                                    <div className="bg-gray-950
+                                    h-[150px] w-[150px] rounded-full
+                                   mt-[40px]
+                                    md:h-[260px] md:w-[260px]
+                                     md:mt-[80px]
+                                    lg:h-[300px] lg:w-[300px]
+                                     lg:mt-[60px] flex justify-center items-center ">
+                                        <img className='h-5/6 w-5/6'
+                                            src={userLogo} alt="" />
+
+                                    </div>
+                                </div>
+                            )}
 
                         <div className="h-full ">
                             {remoteStream &&
@@ -180,19 +228,25 @@ const DuoSpaceRoom= () => {
 
                         </div>
 
+                        {/*  {(!isHost && remoteID) && (
 
-                        <div className="flex items-end gap-6 mt-[-60px]  ">
-                            <div className="h-10 w-10 bg-gray-950 rounded-full">
-                                <img className='h-10 w-10 p-2' src={videoLogo} alt="" />
-                            </div>
-                            <div onClick={() => { sendStreams() }} className=" cursor-pointer h-12 w-12 bg-red-700 rounded-full">
-                                <img className='h-12 w-12 p-2' src={callLogo} alt="" />
-                            </div>
-                            <div className="h-10 w-10 bg-gray-950 rounded-full">
-                                <img className='h-10 w-10 p-2' src={micLogo} alt="" />
-                            </div>
+                            <div className="flex items-end gap-6   ">
+                                <div onClick={() => { sendStreams() }} className=" cursor-pointer bg-red-700 rounded-full">
+                                    send streams
+                                </div>
 
-                        </div>
+
+                            </div>
+                        )} */}
+                   
+
+                            <div className="flex items-end gap-6   ">
+                                <div onClick={() => { sendStreams() }} className=" cursor-pointer bg-red-700 rounded-full">
+                                    send streams
+                                </div>
+
+
+                   </div>
                     </div>
 
                 </div>
