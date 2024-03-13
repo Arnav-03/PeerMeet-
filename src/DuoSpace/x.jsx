@@ -1,12 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useSocket } from './context/Socketprovider';
 import ReactPlayer from 'react-player'
-import micLogo from '../assets/mic.png';
-import callLogo from '../assets/call.png';
-import videoLogo from '../assets/video.png';
-import { useSocket } from '../context/SocketProvider';
-import peer from './PeerService/peer';
-
-
+import peer from './service/peer';
+import './index.css'
 const Room = () => {
     const socket = useSocket();
     const [remoteID, setremoteID] = useState(null)
@@ -26,7 +22,6 @@ const Room = () => {
             setmystream(stream);
         } catch (error) {
             console.error('Error accessing camera and/or microphone:', error);
-            handlecall();
         }
     }, [remoteID, socket]);
 
