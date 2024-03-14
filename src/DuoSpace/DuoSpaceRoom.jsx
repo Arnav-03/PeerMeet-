@@ -16,13 +16,11 @@ const DuoSpaceRoom = () => {
     const [mystream, setmystream] = useState(null)
     const [remoteStream, setremoteStream] = useState(null)
     const [isHost, setIsHost] = useState(false); // State to track if current user is the host
+    const [userJoinedOnce, setUserJoinedOnce] = useState(false); // State to track if user has joined the room once
 
     const handleUserJoined = useCallback(({ username, id }) => {
         console.log(`User ${username} joined room`);
         setremoteID(id);
-
-        setIsHost(socket.id === id);
-
     }, []);
 
     const handlecall = useCallback(async () => {
@@ -88,7 +86,11 @@ const DuoSpaceRoom = () => {
         })
 
     }, [])
-
+    useEffect(() => {
+        if (remoteID) {
+            handlecall(); // Automatically initiate call when remoteID is set
+        }
+    }, [remoteID, handlecall]);
 
 
     useEffect(() => {
@@ -228,7 +230,7 @@ const DuoSpaceRoom = () => {
 
                         </div>
 
-                        {/*  {(!isHost && remoteID) && (
+                          {(!isHost) && (
 
                             <div className="flex items-end gap-6   ">
                                 <div onClick={() => { sendStreams() }} className=" cursor-pointer bg-red-700 rounded-full">
@@ -237,16 +239,14 @@ const DuoSpaceRoom = () => {
 
 
                             </div>
-                        )} */}
-                   
-
-                            <div className="flex items-end gap-6   ">
-                                <div onClick={() => { sendStreams() }} className=" cursor-pointer bg-red-700 rounded-full">
-                                    send streams
-                                </div>
+                        )} 
 
 
-                   </div>
+                {/*         <div className="flex items-end gap-6   ">
+                            <div onClick={() => { sendStreams() }} className=" cursor-pointer bg-red-700 rounded-full">
+                                send streams
+                            </div>
+                        </div> */}
                     </div>
 
                 </div>
