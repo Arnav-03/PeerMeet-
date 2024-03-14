@@ -12,17 +12,27 @@ import { useSocket } from '../context/SocketProvider';
 
 const DuoSpaceRoom = () => {
     const socket = useSocket();
+    const roomIdFromUrl = window.location.pathname.split('/').pop();
+
     const [remoteID, setremoteID] = useState(null)
     const [mystream, setmystream] = useState(null)
     const [remoteStream, setremoteStream] = useState(null)
     const [isHost, setIsHost] = useState(false); // State to track if current user is the host
-
-    const handleUserJoined = useCallback(({ username, id }) => {
+    const [roomid, setRoomid] = useState(roomIdFromUrl); 
+    
+    const handleUserJoined = useCallback(({ username, id , roomId }) => {
         console.log(`User ${username} joined room`);
         setremoteID(id);
-
-
+        setroomid(roomId);
+        console.log(roomId);
     }, []);
+    const handleUserroomJoined = useCallback(({ roomId }) => {
+        console.log(`User joined room ${roomId}`);
+        setroomid(roomId);
+        console.log(roomId);
+    }, [roomid]);
+
+
 
     const handlecall = useCallback(async () => {
         try {
@@ -90,8 +100,11 @@ const DuoSpaceRoom = () => {
 
 
 
+
+
     useEffect(() => {
         socket.on('user:joined', handleUserJoined);
+        socket.on('roomid:joined', handleUserroomJoined);
         socket.on('incoming:call', handleincomingcall);
         socket.on('call:accepted', handlecallaccepted);
         socket.on('peer:nego:needed', handlenegoincoming);
@@ -107,7 +120,7 @@ const DuoSpaceRoom = () => {
 
 
         };
-    }, [socket, handleUserJoined, handleincomingcall, handlecallaccepted, handlenegoneededfinal, handlenegoincoming]);
+    }, [socket, handleUserJoined, handleUserroomJoined,handleincomingcall, handlecallaccepted, handlenegoneededfinal, handlenegoincoming]);
     const style = {
         fontFamily: '"Madimi One", sans-serif',
         fontWeight: "600",
@@ -130,7 +143,7 @@ const DuoSpaceRoom = () => {
             <div className='text-[#ffffff] text-sm md:text-xl   m-2' style={style} >
                 PeerMeet</div>
             <div style={titlestyle} className="text-sm text-[#3da0ad] mt-[-10px] mb-[55px] md:mb-[10px] md:text-xl">Duo Space</div>
-
+            <div className="text-white ">Room ID: {roomid}</div>
             <div className="flex flex-col md:flex-row h-5/6 w-full gap-4 justify-center items-center">
 
 
