@@ -20,17 +20,12 @@ const DuoSpaceRoom = () => {
     const [isHost, setIsHost] = useState(false); // State to track if current user is the host
     const [roomid, setRoomid] = useState(roomIdFromUrl); 
     
-    const handleUserJoined = useCallback(({ username, id , roomId }) => {
+    const handleUserJoined = useCallback(({ username, id  }) => {
         console.log(`User ${username} joined room`);
         setremoteID(id);
-        setroomid(roomId);
         console.log(roomId);
     }, []);
-    const handleUserroomJoined = useCallback(({ roomId }) => {
-        console.log(`User joined room ${roomId}`);
-        setroomid(roomId);
-        console.log(roomId);
-    }, [roomid]);
+
 
 
 
@@ -104,7 +99,6 @@ const DuoSpaceRoom = () => {
 
     useEffect(() => {
         socket.on('user:joined', handleUserJoined);
-        socket.on('roomid:joined', handleUserroomJoined);
         socket.on('incoming:call', handleincomingcall);
         socket.on('call:accepted', handlecallaccepted);
         socket.on('peer:nego:needed', handlenegoincoming);
