@@ -16,12 +16,12 @@ const DuoSpaceRoom = () => {
     const [mystream, setmystream] = useState(null)
     const [remoteStream, setremoteStream] = useState(null)
     const [isHost, setIsHost] = useState(false); // State to track if current user is the host
-    const [userJoinedOnce, setUserJoinedOnce] = useState(false); // State to track if user has joined the room once
 
-    const handleUserJoined = useCallback(({ username, id }) => {
-        console.log(`User ${username} joined room`);
+    const handleUserJoined = useCallback(({ username, id, roomId }) => {
+        console.log(`User ${username} joined room ${roomId}`);
         setremoteID(id);
-    }, []);
+        setIsHost(id === socket.id); // Check if the current user is the host
+    }, [socket.id]);
 
     const handlecall = useCallback(async () => {
         try {
@@ -51,6 +51,11 @@ const DuoSpaceRoom = () => {
             peer.peer.addTrack(track, mystream);
         }
     }, [mystream]);
+    useEffect(() => {
+        if (isHost) {
+            handlecall(); // Automatically initiate call when the user is the host
+        }
+    }, [isHost, handlecall]);
 
     const handlecallaccepted = useCallback(({ from, ans }) => {
         peer.setLocalDescription(ans);
