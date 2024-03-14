@@ -87,10 +87,11 @@ const DuoSpaceRoom = () => {
 
     }, [])
     useEffect(() => {
-        if (remoteID) {
-            handlecall(); // Automatically initiate call when remoteID is set
+        if (remoteID && remoteID !== socket.id) {
+            handlecall(); // Automatically initiate call when remoteID is set and different from local user's ID
         }
-    }, [remoteID, handlecall]);
+    }, [remoteID, handlecall, socket.id]);
+    
 
 
     useEffect(() => {
