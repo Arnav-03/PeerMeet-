@@ -16,20 +16,13 @@ const DuoSpaceRoom = () => {
     const [mystream, setmystream] = useState(null)
     const [remoteStream, setremoteStream] = useState(null)
     const [isHost, setIsHost] = useState(false); // State to track if current user is the host
-    const [userJoinedOnce, setUserJoinedOnce] = useState(false); // State to track if user has joined the room once
 
-    
     const handleUserJoined = useCallback(({ username, id }) => {
         console.log(`User ${username} joined room`);
-        if (userJoinedOnce) {
-            setIsHost(false);
-        } else {
-            setIsHost(true);
-            setUserJoinedOnce(true);
-        }
         setremoteID(id);
-    }, [userJoinedOnce]);
-    
+
+
+    }, []);
 
     const handlecall = useCallback(async () => {
         try {
@@ -94,12 +87,7 @@ const DuoSpaceRoom = () => {
         })
 
     }, [])
-    useEffect(() => {
-        if (remoteID && remoteID !== socket.id) {
-            handlecall(); // Automatically initiate call when remoteID is set and different from local user's ID
-        }
-    }, [remoteID, handlecall, socket.id]);
-    
+
 
 
     useEffect(() => {
@@ -239,7 +227,7 @@ const DuoSpaceRoom = () => {
 
                         </div>
 
-                          {(!isHost) && (
+                        {/*  {(!isHost && remoteID) && (
 
                             <div className="flex items-end gap-6   ">
                                 <div onClick={() => { sendStreams() }} className=" cursor-pointer bg-red-700 rounded-full">
@@ -248,14 +236,16 @@ const DuoSpaceRoom = () => {
 
 
                             </div>
-                        )} 
+                        )} */}
+                   
+
+                            <div className="flex items-end gap-6   ">
+                                <div onClick={() => { sendStreams() }} className=" cursor-pointer bg-red-700 rounded-full">
+                                    send streams
+                                </div>
 
 
-                {/*         <div className="flex items-end gap-6   ">
-                            <div onClick={() => { sendStreams() }} className=" cursor-pointer bg-red-700 rounded-full">
-                                send streams
-                            </div>
-                        </div> */}
+                   </div>
                     </div>
 
                 </div>
