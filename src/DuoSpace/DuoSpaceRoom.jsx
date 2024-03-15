@@ -114,7 +114,7 @@ const DuoSpaceRoom = () => {
 
 
         };
-    }, [socket, handleUserJoined, handleUserroomJoined,handleincomingcall, handlecallaccepted, handlenegoneededfinal, handlenegoincoming]);
+    }, [socket, handleUserJoined,handleincomingcall, handlecallaccepted, handlenegoneededfinal, handlenegoincoming]);
     const style = {
         fontFamily: '"Madimi One", sans-serif',
         fontWeight: "600",
