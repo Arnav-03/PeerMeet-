@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import doodle1 from '../assets/doodle1.png';
 import '../index.css';
 import { useSocket } from '../context/SocketProvider'
@@ -21,38 +21,34 @@ const DuoSpace = () => {
   const createRoomId = () => {
     const randomFourDigitNumber = Math.floor(1000 + Math.random() * 9000);
     const roomId = randomFourDigitNumber.toString();
-      return roomId;
+    return roomId;
   };
-  
+
   const handleHostSubmit = (e) => {
     e.preventDefault();
     if (username.trim() === '') {
-        seterrorOnSubmit(true);
-        setShakeOnError((prev) => !prev);
-        return;
+      seterrorOnSubmit(true);
+      setShakeOnError((prev) => !prev);
+      return;
     }
-    console.log("host", username);
     seterrorOnSubmit(false);
     if (socket) {
-        const roomHostId = createRoomId();
-        socket.emit("room:join", { user: username, roomId: roomHostId });
-        console.log(' data:', { username, roomHostId });
+      const roomHostId = createRoomId();
+      socket.emit("room:join", { user: username, roomId: roomHostId, role: 'Host' }); // Include role information
     } else {
-        console.error("Socket is null or undefined.");
+      console.error("Socket is null or undefined.");
     }
-};
+  };
 
-const handleJoinRoom = useCallback(({ username, roomId }) => {
-  console.log(username)
-  const Naame = username;
-  const RooomId = roomId;
-  console.log(Naame, RooomId);
-  navigate(`/DuoSpaceRoom/${RooomId}`);
-}, [navigate]);
-
+  const handleJoinRoom = useCallback(({ user, roomId, role }) => {
+    const Naame = user;
+    const RooomId = roomId;
+    const Role = role; // Access role information
+    navigate(`/DuoSpaceRoom/${RooomId}`, { state: { role: Role } }); // Pass role information to the next component
+  }, [navigate]);
 
   useEffect(() => {
-      socket.on("room:join", handleJoinRoom);
+    socket.on("room:join", handleJoinRoom);
     return () => {
       socket.off("room:join", handleJoinRoom);
     };
@@ -61,33 +57,29 @@ const handleJoinRoom = useCallback(({ username, roomId }) => {
   const handleJoinSubmit = (e) => {
     e.preventDefault();
     if (username.trim() === '') {
-        seterrorOnSubmit(true);
-        setShakeOnError((prev) => !prev);
-        return;
+      seterrorOnSubmit(true);
+      setShakeOnError((prev) => !prev);
+      return;
     }
-    console.log("join", username);
     seterrorOnSubmit(false);
 
     if (socket) {
-        const roomId = prompt('Enter Room ID:'); // Prompt the user to enter the room ID
-        if (roomId) {
-            socket.emit("room:join", { user: username, roomId: roomId });
-            console.log(' data:', { username, roomId });
-        } else {
-            // Handle case where the user cancels or enters an empty room ID
-            console.log('Room ID not provided or invalid');
-        }
+      const roomId = prompt('Enter Room ID:');
+      if (roomId) {
+        socket.emit("room:join", { user: username, roomId: roomId, role: 'participant' }); // Include role information
+      } else {
+        console.log('Room ID not provided or invalid');
+      }
     } else {
-        console.error("Socket is null or undefined.");
+      console.error("Socket is null or undefined.");
     }
-};
-
+  };
 
   useEffect(() => {
     if (shakeOnError) {
       const timeoutId = setTimeout(() => {
         setShakeOnError(false);
-      }, 500); 
+      }, 500);
       return () => clearTimeout(timeoutId);
     }
   }, [shakeOnError]);

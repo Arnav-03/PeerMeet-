@@ -17,29 +17,69 @@ const DuoSpaceRoom = () => {
     const [remoteID, setremoteID] = useState(null)
     const [mystream, setmystream] = useState(null)
     const [remoteStream, setremoteStream] = useState(null)
-    const [isHost, setIsHost] = useState(false); // State to track if current user is the host
-    const [roomid, setRoomid] = useState(roomIdFromUrl); 
-    
-    const handleUserJoined = useCallback(({ username, id  }) => {
-        console.log(`User ${username} joined room`);
-        setremoteID(id);
-        console.log(roomId);
-    }, []);
+    const [roomid, setRoomid] = useState(roomIdFromUrl);
 
+    /*    const handleUserJoined = useCallback(({ username, id, Role }) => {
+           console.log(`User ${username} joined room as ${Role}`);
+           setremoteID(id);
+       }, []); */
+    const [rolee, setrolee] = useState("")
+    const [bothjoined, setbothjoined] = useState(false)
 
+    const handleRole = useCallback(({ role }) => {
+        if (rolee === "") {
+            setrolee(role);
+            console.log("host joined")
+        }
+        else if (rolee === "Host") {
+            console.log("participant joined")
+            setbothjoined(true);
+        }
+    }, [rolee]);
+ 
 
 
     const handlecall = useCallback(async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-            const offer = await peer.getOffer();
-            socket.emit('user:call', { to: remoteID, offer })
-            setmystream(stream);
+            if (rolee === "Host") { // Check if the user is the host
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                const offer = await peer.getOffer();
+                socket.emit('user:call', { to: remoteID, offer });
+                setmystream(stream);
+            }
         } catch (error) {
             console.error('Error accessing camera and/or microphone:', error);
             handlecall();
         }
-    }, [remoteID, socket]);
+    }, [remoteID, socket, rolee]);
+    const handleUserJoined = useCallback(({ username, id, Role }) => {
+        console.log(`User ${username} joined room as ${Role}`);
+        setremoteID(id);
+       /*  if (Role === "participant") {
+            setTimeout(() => {
+                handlecall(); // Call handlecall function if the role is Participant
+            }, 2000);
+        } */
+    }, []);
+
+    useEffect(() => {
+        handlecall();
+    }, [bothjoined,setbothjoined])
+
+
+
+
+    /*     const handlecall = useCallback(async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                const offer = await peer.getOffer();
+                socket.emit('user:call', { to: remoteID, offer })
+                setmystream(stream);
+            } catch (error) {
+                console.error('Error accessing camera and/or microphone:', error);
+                handlecall();
+            }
+        }, [remoteID, socket]); */
 
     const handleincomingcall = useCallback(async ({ from, offer }) => {
         setremoteID(from);
@@ -92,13 +132,22 @@ const DuoSpaceRoom = () => {
         })
 
     }, [])
+    const handleRoomJoin = useCallback(({ username, roomId }) => {
+        console.log(`${username} joined room ${roomId}`);
+    }, []);
 
+    useEffect(() => {
+        socket.on('room:join', handleRoomJoin);
 
-
+        return () => {
+            socket.off('room:join', handleRoomJoin);
+        };
+    }, [socket, handleRoomJoin]);
 
 
     useEffect(() => {
         socket.on('user:joined', handleUserJoined);
+        socket.on('role', handleRole);
         socket.on('incoming:call', handleincomingcall);
         socket.on('call:accepted', handlecallaccepted);
         socket.on('peer:nego:needed', handlenegoincoming);
@@ -107,6 +156,7 @@ const DuoSpaceRoom = () => {
 
         return () => {
             socket.off('user:joined', handleUserJoined);
+            socket.off('role', handleRole);
             socket.off('incoming:call', handleincomingcall);
             socket.off('call:accepted', handlecallaccepted);
             socket.off('peer:nego:needed', handlenegoincoming);
@@ -114,7 +164,7 @@ const DuoSpaceRoom = () => {
 
 
         };
-    }, [socket, handleUserJoined,handleincomingcall, handlecallaccepted, handlenegoneededfinal, handlenegoincoming]);
+    }, [socket, handleRole, handleUserJoined, handleincomingcall, handlecallaccepted, handlenegoneededfinal, handlenegoincoming]);
     const style = {
         fontFamily: '"Madimi One", sans-serif',
         fontWeight: "600",
@@ -131,13 +181,24 @@ const DuoSpaceRoom = () => {
         fontStyle: "normal",
     }
     const [closevideobutton, setclosevideobutton] = useState(true);
+
+
+
     return (
         <div className='text-white flex flex-col items-center h-screen'>
 
             <div className='text-[#ffffff] text-sm md:text-xl   m-2' style={style} >
-                PeerMeet</div>
+                PeerMeet
+            </div>
             <div style={titlestyle} className="text-sm text-[#3da0ad] mt-[-10px] mb-[55px] md:mb-[10px] md:text-xl">Duo Space</div>
-            <div className="text-white ">Room ID: {roomid}</div>
+            {rolee === "Host" && (
+                <div className="text-white mt-[-10px] *:">Room ID: <span className='text-[#4cdfd2]'>{roomid}
+                </span> </div>
+            )}
+
+            <div style={usernamestyle} className="text-[#c7b405] mt-[-5px] uppercase ">{rolee}</div>
+
+
             <div className="flex flex-col md:flex-row h-5/6 w-full gap-4 justify-center items-center">
 
 
@@ -176,7 +237,7 @@ const DuoSpaceRoom = () => {
 
                         </div>
 
-
+{/* 
                         <div className="flex items-end gap-6 mt-[-60px]  ">
                             <div onClick={() => {
                                 handlecall();
@@ -192,7 +253,7 @@ const DuoSpaceRoom = () => {
                                 <img className='h-10 w-10 p-2' src={closemLogo} alt="" />
                             </div>
 
-                        </div>
+                        </div> */}
                     </div>
 
                 </div>
@@ -234,25 +295,10 @@ const DuoSpaceRoom = () => {
 
                         </div>
 
-                        {/*  {(!isHost && remoteID) && (
-
-                            <div className="flex items-end gap-6   ">
-                                <div onClick={() => { sendStreams() }} className=" cursor-pointer bg-red-700 rounded-full">
-                                    send streams
-                                </div>
 
 
-                            </div>
-                        )} */}
-                   
-
-                            <div className="flex items-end gap-6   ">
-                                <div onClick={() => { sendStreams() }} className=" cursor-pointer bg-red-700 rounded-full">
-                                    send streams
-                                </div>
 
 
-                   </div>
                     </div>
 
                 </div>
@@ -262,7 +308,16 @@ const DuoSpaceRoom = () => {
 
             </div>
 
+            {rolee !== "Host" && (
+                <div className="flex items-end gap-6   ">
+                    <div onClick={() => { sendStreams() }} className=" cursor-pointer capitalize bg-red-700 rounded-full 
+                                font-sans p-2">
+                        start sharing
+                    </div>
 
+
+                </div>
+            )}
 
         </div>
     )
