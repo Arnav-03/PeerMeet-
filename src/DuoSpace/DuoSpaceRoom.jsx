@@ -10,7 +10,13 @@ import closemLogo from '../assets/micclose.png';
 import peer from './PeerService/peer';
 import { useSocket } from '../context/SocketProvider';
 
+
+import { useNavigate } from 'react-router-dom';
+
 const DuoSpaceRoom = () => {
+    const navigate = useNavigate();
+
+
     const socket = useSocket();
     const roomIdFromUrl = window.location.pathname.split('/').pop();
 
@@ -23,6 +29,10 @@ const DuoSpaceRoom = () => {
     const [RenderComponent, setRenderComponent] = useState(false)
     const [closevideobutton, setclosevideobutton] = useState(true);
     const [facingMode, setFacingMode] = useState('user'); // 'user' for front camera, 'environment' for back camera
+    const [videoEnabled, setVideoEnabled] = useState(true);
+
+
+
     const toggleFacingMode = () => {
         setFacingMode(facingMode === 'user' ? 'environment' : 'user');
         console.log("hehe");
@@ -39,14 +49,29 @@ const DuoSpaceRoom = () => {
         }
     }, [rolee]);
 
-   
+
+    useEffect(() => {
+        socket.on("user:logout", ({ userId }) => {
+            setremoteStream(null);
+            setbothjoined(false)
+        });
+    
+        return () => {
+            // Clean up event listener
+            socket.off("user:logout");
+        };
+    }, [socket, setremoteStream]); // Make sure to include setremoteStream in the dependency array
+    
+
     const handlecall = useCallback(async () => {
         try {
             if (rolee === "Host") {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     audio: true,
                     video: {
-                        facingMode: { exact: facingMode }
+                        facingMode: { exact: facingMode },
+                        // Enable or disable video based on the state of videoEnabled
+                        ...(videoEnabled ? {} : { facingMode: 'none' }),
                     }
                 });
                 const offer = await peer.getOffer();
@@ -57,7 +82,7 @@ const DuoSpaceRoom = () => {
             console.error('Error accessing camera and/or microphone:', error);
             handlecall();
         }
-    }, [remoteID, socket, rolee, facingMode]);
+    }, [remoteID, socket, rolee, facingMode, videoEnabled]);
     const handleUserJoined = useCallback(({ username, id, Role }) => {
         console.log(`User ${username} joined room as ${Role}`);
         setremoteID(id);
@@ -76,6 +101,24 @@ const DuoSpaceRoom = () => {
         socket.emit('call:accepted', { to: from, ans })
 
     }, [socket])
+    const handleLogout = () => {
+        // Stop media stream
+        if (mystream) {
+            mystream.getTracks().forEach(track => track.stop());
+        }
+     
+        // Reset media stream state
+        setmystream(null);
+        setremoteStream(null);
+        setrolee("Host");
+
+        // Close peer connections if applicable
+        // Example: peer.peer.close();
+
+        socket.emit('logout');
+
+        navigate('/DuoSpace'); 
+    };
 
     const sendStreams = useCallback(() => {
         for (const track of mystream.getTracks()) {
@@ -248,10 +291,6 @@ const DuoSpaceRoom = () => {
                         </div>
                     </div>
                 </div>
-
-
-
-
                 {/* 
                 <div className="h-5/6 w-5/6  flex flex-col items-center text-lg mb-0 ">
 
@@ -285,9 +324,6 @@ const DuoSpaceRoom = () => {
                         </div>
                     </div>
                 </div>
-
-
-
                 <div className="h-5/6 w-5/6  flex flex-col items-center text-lg mb-0 ">
                     <div className={`h-full  w-full flex flex-col  items-center ${remoteStream ? "" : "bg-gray-950 "} py-1
                     `}>
@@ -318,18 +354,18 @@ const DuoSpaceRoom = () => {
                         </div>
                     </div>
                 </div> */}
-                <div className=" flex flex-row justify-center items-center w-full  gap-8 mt-[-50px] z-10">
+                <div className=" flex flex-row justify-center items-center w-full  gap-8 mt-[-50px] md:mt-[-60px] z-10">
 
-                    <div className="h-10 w-10 md:h-14 bg-gray-950   md:w-14 rounded-full p-1 md:p-2 border-[1px]">
-                        <img className='h-8 w-8 md:h-10 md:w-10' src={videoLogo} alt="" />
-                    </div>
-                    <div className="bg-red-600 h-12 w-12 md:h-14 md:w-14 rounded-full p-0.5 md:p-1">
+                    {/* <div className="h-10 w-10 md:h-14 bg-gray-950   md:w-14 rounded-full p-1 md:p-2 border-[1px]">
+                    <img className='h-8 w-8 md:h-10 md:w-10' src={videoEnabled ? videoLogo : closevLogo} alt="" />
+                    </div> */}
+                    <div onClick={handleLogout} className="bg-red-600 h-12 w-12 md:h-14 md:w-14 rounded-full p-0.5 md:p-1">
                         <img className='h-12 w-12' src={callLogo} alt="" />
                     </div> 
-                    <div                      onClick={toggleFacingMode}
+                  {/*   <div                      onClick={toggleFacingMode}
                     className="h-10 w-10 md:h-14 bg-gray-950   md:w-14 rounded-full p-1 md:p-2 border-[1px]">
                         <img className='h-8 w-8 md:h-10 md:w-10' src={micLogo} alt="" />
-                    </div>
+                    </div> */}
                 </div>
 
             </div>
