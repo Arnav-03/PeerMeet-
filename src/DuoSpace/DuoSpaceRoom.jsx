@@ -22,7 +22,11 @@ const DuoSpaceRoom = () => {
     const [bothjoined, setbothjoined] = useState(false)
     const [RenderComponent, setRenderComponent] = useState(false)
     const [closevideobutton, setclosevideobutton] = useState(true);
-
+    const [facingMode, setFacingMode] = useState('user'); // 'user' for front camera, 'environment' for back camera
+    const toggleFacingMode = () => {
+        setFacingMode(facingMode === 'user' ? 'environment' : 'user');
+        console.log("hehe");
+    };
 
     const handleRole = useCallback(({ role }) => {
         if (rolee === "") {
@@ -35,10 +39,16 @@ const DuoSpaceRoom = () => {
         }
     }, [rolee]);
 
+   
     const handlecall = useCallback(async () => {
         try {
             if (rolee === "Host") {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: {
+                        facingMode: { exact: facingMode }
+                    }
+                });
                 const offer = await peer.getOffer();
                 socket.emit('user:call', { to: remoteID, offer });
                 setmystream(stream);
@@ -47,8 +57,7 @@ const DuoSpaceRoom = () => {
             console.error('Error accessing camera and/or microphone:', error);
             handlecall();
         }
-    }, [remoteID, socket, rolee]);
-
+    }, [remoteID, socket, rolee, facingMode]);
     const handleUserJoined = useCallback(({ username, id, Role }) => {
         console.log(`User ${username} joined room as ${Role}`);
         setremoteID(id);
@@ -213,7 +222,7 @@ const DuoSpaceRoom = () => {
                     <div className="absolute bottom-0 right-0 mr-4 md:mb-4 md:mr-4 h-[150px] w-[220px]  md:h-[190px] md:w-[300px] 
                                     lg:h-[230px] lg:w-[350px]">
 
-                        <div className={`h-full  w-full items-center ${mystream ? "" : " bg-gray-950"}  rounded-xl
+                        <div className={`h-full  w-full items-center ${mystream ? "" : " bg-gray-950"} cursor-pointer rounded-xl
                     `}>
                             {!mystream && (
                                 <div className=" h-full flex justify-center items-center border-[1px] rounded-xl">
@@ -317,7 +326,8 @@ const DuoSpaceRoom = () => {
                     <div className="bg-red-600 h-12 w-12 md:h-14 md:w-14 rounded-full p-0.5 md:p-1">
                         <img className='h-12 w-12' src={callLogo} alt="" />
                     </div> 
-                    <div className="h-10 w-10 md:h-14 bg-gray-950   md:w-14 rounded-full p-1 md:p-2 border-[1px]">
+                    <div                      onClick={toggleFacingMode}
+                    className="h-10 w-10 md:h-14 bg-gray-950   md:w-14 rounded-full p-1 md:p-2 border-[1px]">
                         <img className='h-8 w-8 md:h-10 md:w-10' src={micLogo} alt="" />
                     </div>
                 </div>
