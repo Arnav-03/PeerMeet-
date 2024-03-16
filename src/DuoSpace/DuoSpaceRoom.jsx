@@ -18,14 +18,9 @@ const DuoSpaceRoom = () => {
     const [mystream, setmystream] = useState(null)
     const [remoteStream, setremoteStream] = useState(null)
     const [roomid, setRoomid] = useState(roomIdFromUrl);
-
-    /*    const handleUserJoined = useCallback(({ username, id, Role }) => {
-           console.log(`User ${username} joined room as ${Role}`);
-           setremoteID(id);
-       }, []); */
     const [rolee, setrolee] = useState("")
     const [bothjoined, setbothjoined] = useState(false)
-
+    const [RenderComponent, setRenderComponent] = useState(false)
     const handleRole = useCallback(({ role }) => {
         if (rolee === "") {
             setrolee(role);
@@ -55,11 +50,6 @@ const DuoSpaceRoom = () => {
     const handleUserJoined = useCallback(({ username, id, Role }) => {
         console.log(`User ${username} joined room as ${Role}`);
         setremoteID(id);
-       /*  if (Role === "participant") {
-            setTimeout(() => {
-                handlecall(); // Call handlecall function if the role is Participant
-            }, 2000);
-        } */
     }, []);
 
     useEffect(() => {
@@ -91,8 +81,7 @@ const DuoSpaceRoom = () => {
 
     }, [socket])
 
-
-    const sendStreams = useCallback(() => {
+ const sendStreams = useCallback(() => {
         for (const track of mystream.getTracks()) {
             peer.peer.addTrack(track, mystream);
         }
@@ -182,8 +171,25 @@ const DuoSpaceRoom = () => {
     }
     const [closevideobutton, setclosevideobutton] = useState(true);
 
+   useEffect(() => {
+        const timeout = setTimeout(() => {
+            setRenderComponent(true);
+        }, 1000);
 
-
+        return () => clearTimeout(timeout);
+    }, []);
+    useEffect(() => {
+        let timeout;
+        if (rolee !== "Host" && RenderComponent && mystream) {
+            timeout = setTimeout(() => {
+                sendStreams();
+            }, 2000);
+        }
+    
+        return () => clearTimeout(timeout);
+    }, [rolee, RenderComponent, mystream]);
+    
+    
     return (
         <div className='text-white flex flex-col items-center h-screen'>
 
@@ -308,10 +314,10 @@ const DuoSpaceRoom = () => {
 
             </div>
 
-            {rolee !== "Host" && (
+            {(rolee !== "Host" && RenderComponent) && (
                 <div className="flex items-end gap-6   ">
-                    <div onClick={() => { sendStreams() }} className=" cursor-pointer capitalize bg-red-700 rounded-full 
-                                font-sans p-2">
+                    <div onClick={() => { sendStreams() }} className=" cursor-pointer font-light capitalize bg-red-700  rounded-2xl 
+                     p-2 m-2">
                         start sharing
                     </div>
 
