@@ -314,7 +314,7 @@ const DuoSpaceRoom = () => {
 
             </div>
 
-            {(rolee !== "Host" && RenderComponent) && (
+      {/*       {(rolee !== "Host" && RenderComponent) && (
                 <div className="flex items-end gap-6   ">
                     <div onClick={() => { sendStreams() }} className=" cursor-pointer font-light capitalize bg-red-700  rounded-2xl 
                      p-2 m-2">
@@ -323,7 +323,7 @@ const DuoSpaceRoom = () => {
 
 
                 </div>
-            )}
+            )} */}
 
         </div>
     )
