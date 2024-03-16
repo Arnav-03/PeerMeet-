@@ -21,6 +21,9 @@ const DuoSpaceRoom = () => {
     const [rolee, setrolee] = useState("")
     const [bothjoined, setbothjoined] = useState(false)
     const [RenderComponent, setRenderComponent] = useState(false)
+    const [closevideobutton, setclosevideobutton] = useState(true);
+
+
     const handleRole = useCallback(({ role }) => {
         if (rolee === "") {
             setrolee(role);
@@ -31,12 +34,10 @@ const DuoSpaceRoom = () => {
             setbothjoined(true);
         }
     }, [rolee]);
- 
-
 
     const handlecall = useCallback(async () => {
         try {
-            if (rolee === "Host") { // Check if the user is the host
+            if (rolee === "Host") {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
                 const offer = await peer.getOffer();
                 socket.emit('user:call', { to: remoteID, offer });
@@ -47,29 +48,15 @@ const DuoSpaceRoom = () => {
             handlecall();
         }
     }, [remoteID, socket, rolee]);
+
     const handleUserJoined = useCallback(({ username, id, Role }) => {
         console.log(`User ${username} joined room as ${Role}`);
         setremoteID(id);
     }, []);
 
-    useEffect(() => {
-        handlecall();
-    }, [bothjoined,setbothjoined])
-
-
-
-
-    /*     const handlecall = useCallback(async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-                const offer = await peer.getOffer();
-                socket.emit('user:call', { to: remoteID, offer })
-                setmystream(stream);
-            } catch (error) {
-                console.error('Error accessing camera and/or microphone:', error);
+        useEffect(() => {
                 handlecall();
-            }
-        }, [remoteID, socket]); */
+            }, [bothjoined,setbothjoined])   
 
     const handleincomingcall = useCallback(async ({ from, offer }) => {
         setremoteID(from);
@@ -81,7 +68,7 @@ const DuoSpaceRoom = () => {
 
     }, [socket])
 
- const sendStreams = useCallback(() => {
+    const sendStreams = useCallback(() => {
         for (const track of mystream.getTracks()) {
             peer.peer.addTrack(track, mystream);
         }
@@ -141,8 +128,6 @@ const DuoSpaceRoom = () => {
         socket.on('call:accepted', handlecallaccepted);
         socket.on('peer:nego:needed', handlenegoincoming);
         socket.on('peer:nego:final', handlenegoneededfinal);
-
-
         return () => {
             socket.off('user:joined', handleUserJoined);
             socket.off('role', handleRole);
@@ -150,10 +135,9 @@ const DuoSpaceRoom = () => {
             socket.off('call:accepted', handlecallaccepted);
             socket.off('peer:nego:needed', handlenegoincoming);
             socket.off('peer:nego:final', handlenegoneededfinal);
-
-
         };
     }, [socket, handleRole, handleUserJoined, handleincomingcall, handlecallaccepted, handlenegoneededfinal, handlenegoincoming]);
+
     const style = {
         fontFamily: '"Madimi One", sans-serif',
         fontWeight: "600",
@@ -169,9 +153,8 @@ const DuoSpaceRoom = () => {
         fontWeight: "600",
         fontStyle: "normal",
     }
-    const [closevideobutton, setclosevideobutton] = useState(true);
 
-   useEffect(() => {
+    useEffect(() => {
         const timeout = setTimeout(() => {
             setRenderComponent(true);
         }, 1000);
@@ -185,36 +168,88 @@ const DuoSpaceRoom = () => {
                 sendStreams();
             }, 2000);
         }
-    
+
         return () => clearTimeout(timeout);
     }, [rolee, RenderComponent, mystream]);
-    
-    
+
+
     return (
         <div className='text-white flex flex-col items-center h-screen'>
-
-            <div className='text-[#ffffff] text-sm md:text-xl   m-2' style={style} >
+            <div className='text-[#ffffff] text-sm md:text-xl   m-2 mb-0' style={style} >
                 PeerMeet
             </div>
-            <div style={titlestyle} className="text-sm text-[#3da0ad] mt-[-10px] mb-[55px] md:mb-[10px] md:text-xl">Duo Space</div>
-            {rolee === "Host" && (
-                <div className="text-white mt-[-10px] *:">Room ID: <span className='text-[#4cdfd2]'>{roomid}
-                </span> </div>
-            )}
-
-            <div style={usernamestyle} className="text-[#c7b405] mt-[-5px] uppercase ">{rolee}</div>
+            <div style={titlestyle} className="text-sm text-[#3da0ad]  md:mb-[10px] md:text-xl">
+                Duo Space</div>
+            <div className="text-white ">Room ID: <span className='text-[#4cdfd2]'>{roomid}
+            </span> </div>
 
 
-            <div className="flex flex-col md:flex-row h-5/6 w-full gap-4 justify-center items-center">
+            <div className="flex flex-col h-5/6 w-full ">
+                <div className="h-full w-full relative">
+                    <div className="h-full flex items-center justify-center w-full px-2">
+                        <div className={`h-full w-full flex flex-col justify-center items-center ${remoteStream ? "" : "bg-gray-950"} `}>
+                            {!remoteStream && (
+                                <div className="flex justify-center items-center w-full h-full ">
+                                    <div className="bg-gray-950 h-[250px] w-[250px]
+                                        md:h-[270px] md:w-[270px] 
+                                        lg:h-[300px] lg:w-[300px]
+                                     rounded-full flex justify-center items-center neon-shadow mt-[-100px]">
+                                        <img className="h-5/6 w-5/6" src={userLogo} alt="" />
+                                    </div>
+                                </div>
+                            )}
+
+                            {remoteStream &&
+                                <ReactPlayer
+                                    playing
+                                    height="100%"
+                                    width="100%"
+                                    style={{ pointerEvents: 'none' }}
+                                    muted
+                                    url={remoteStream} />}
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-0 right-0 mr-4 md:mb-4 md:mr-4 h-[170px] w-[250px]  md:h-[210px] md:w-[300px] 
+                                    lg:h-[230px] lg:w-[350px]">
+
+                        <div className={`h-full  w-full items-center ${mystream ? "" : " bg-gray-950"}  rounded-xl
+                    `}>
+                            {!mystream && (
+                                <div className=" h-full flex justify-center items-center border-[1px] rounded-xl">
+                                    <div className="bg-gray-950
+                                    h-[100px] w-[100px] 
+                                    md:h-[150px] md:w-[150px] 
+                                    lg:h-[170px] lg:w-[170px] rounded-full                           
+                                   flex justify-center items-center neon-shadow ">
+                                        <img className='h-5/6 w-5/6'
+                                            src={userLogo} alt="" />
+                                    </div>
+                                </div>
+                            )}
+
+                            {mystream &&
+                                <ReactPlayer
+                                    playing
+                                    height="100%"
+                                    width="100%"
+                                    style={{ pointerEvents: 'none' }}
+                                    muted
+                                    url={mystream} />}
+                        </div>
+                    </div>
+                </div>
 
 
+
+
+                {/* 
                 <div className="h-5/6 w-5/6  flex flex-col items-center text-lg mb-0 ">
 
 
-                    <div className={`h-full  w-full flex flex-col  items-center ${mystream ? "" : "bg-[#242121] "} py-1
+                    <div className={`h-full  w-full flex flex-col  items-center ${mystream ? "" : "bg-gray-950 "} py-1
                     `}>
-                        {!mystream &&
-                            (
+                        {!mystream &&(
                                 <div className=" h-full flex justify-center items-center ">
                                     <div className="bg-gray-950
                                     h-[150px] w-[150px] rounded-full
@@ -222,10 +257,9 @@ const DuoSpaceRoom = () => {
                                     md:h-[260px] md:w-[260px]
                                      md:mt-[80px]
                                     lg:h-[300px] lg:w-[300px]
-                                     lg:mt-[60px] flex justify-center items-center ">
+                                     lg:mt-[60px] flex justify-center items-center neon-shadow ">
                                         <img className='h-5/6 w-5/6'
                                             src={userLogo} alt="" />
-
                                     </div>
                                 </div>
                             )}
@@ -238,41 +272,17 @@ const DuoSpaceRoom = () => {
                                     width="100%"
                                     style={{ pointerEvents: 'none' }}
                                     muted
-
                                     url={mystream} />}
-
                         </div>
-
-{/* 
-                        <div className="flex items-end gap-6 mt-[-60px]  ">
-                            <div onClick={() => {
-                                handlecall();
-                                setclosevideobutton(false);
-                            }}
-                                className="h-10 w-10 bg-gray-950 rounded-full">
-                                <img className='h-10 w-10 p-1.5' src={closevideobutton ? closevLogo : videoLogo} alt="" />
-                            </div>
-                            <div className=" cursor-pointer h-12 w-12 bg-red-700 rounded-full">
-                                <img className='h-12 w-12 p-2' src={callLogo} alt="" />
-                            </div>
-                            <div className="h-10 w-10 bg-gray-950 rounded-full">
-                                <img className='h-10 w-10 p-2' src={closemLogo} alt="" />
-                            </div>
-
-                        </div> */}
                     </div>
-
                 </div>
 
 
 
                 <div className="h-5/6 w-5/6  flex flex-col items-center text-lg mb-0 ">
-
-
-                    <div className={`h-full  w-full flex flex-col  items-center ${remoteStream ? "" : "bg-[#242121] "} py-1
+                    <div className={`h-full  w-full flex flex-col  items-center ${remoteStream ? "" : "bg-gray-950 "} py-1
                     `}>
-                        {!remoteStream &&
-                            (
+                        {!remoteStream && (
                                 <div className=" h-full flex justify-center items-center ">
                                     <div className="bg-gray-950
                                     h-[150px] w-[150px] rounded-full
@@ -280,10 +290,9 @@ const DuoSpaceRoom = () => {
                                     md:h-[260px] md:w-[260px]
                                      md:mt-[80px]
                                     lg:h-[300px] lg:w-[300px]
-                                     lg:mt-[60px] flex justify-center items-center ">
+                                     lg:mt-[60px] flex justify-center items-center neon-shadow ">
                                         <img className='h-5/6 w-5/6'
                                             src={userLogo} alt="" />
-
                                     </div>
                                 </div>
                             )}
@@ -296,36 +305,13 @@ const DuoSpaceRoom = () => {
                                     width="100%"
                                     style={{ pointerEvents: 'none' }}
                                     muted
-
                                     url={remoteStream} />}
-
                         </div>
-
-
-
-
-
                     </div>
-
-                </div>
-
-
-
-
+                </div> */}
             </div>
-
-      {/*       {(rolee !== "Host" && RenderComponent) && (
-                <div className="flex items-end gap-6   ">
-                    <div onClick={() => { sendStreams() }} className=" cursor-pointer font-light capitalize bg-red-700  rounded-2xl 
-                     p-2 m-2">
-                        start sharing
-                    </div>
-
-
-                </div>
-            )} */}
-
         </div>
     )
 }
 export default DuoSpaceRoom
+

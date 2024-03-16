@@ -66,3 +66,6 @@ body{
     animation: shake 0.5s ease-in-out;
   }
   
+  .neon-shadow {
+    box-shadow: 0 0 15px #1ea5aa, 0 0 15px #1ea5aa, 0 0 15px #1ea5aa, 0 0 15px #1ea5aa, 0 0 50px #1ea5aa;
+}
