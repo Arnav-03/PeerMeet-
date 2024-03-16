@@ -54,9 +54,9 @@ const DuoSpaceRoom = () => {
         setremoteID(id);
     }, []);
 
-        useEffect(() => {
-                handlecall();
-            }, [bothjoined,setbothjoined])   
+     useEffect(() => {
+             handlecall();
+         }, [bothjoined,setbothjoined])   
 
     const handleincomingcall = useCallback(async ({ from, offer }) => {
         setremoteID(from);
@@ -184,7 +184,7 @@ const DuoSpaceRoom = () => {
             </span> </div>
 
 
-            <div className="flex flex-col h-5/6 w-full ">
+            <div className="flex flex-col h-5/6 w-full  ">
                 <div className="h-full w-full relative">
                     <div className="h-full flex items-center justify-center w-full px-2">
                         <div className={`h-full w-full flex flex-col justify-center items-center ${remoteStream ? "" : "bg-gray-950"} `}>
@@ -210,7 +210,7 @@ const DuoSpaceRoom = () => {
                         </div>
                     </div>
 
-                    <div className="absolute bottom-0 right-0 mr-4 md:mb-4 md:mr-4 h-[170px] w-[250px]  md:h-[210px] md:w-[300px] 
+                    <div className="absolute bottom-0 right-0 mr-4 md:mb-4 md:mr-4 h-[150px] w-[220px]  md:h-[190px] md:w-[300px] 
                                     lg:h-[230px] lg:w-[350px]">
 
                         <div className={`h-full  w-full items-center ${mystream ? "" : " bg-gray-950"}  rounded-xl
@@ -309,6 +309,19 @@ const DuoSpaceRoom = () => {
                         </div>
                     </div>
                 </div> */}
+                <div className=" flex flex-row justify-center items-center w-full  gap-8 mt-[-50px] z-10">
+
+                    <div className="h-10 w-10 md:h-14 bg-gray-950   md:w-14 rounded-full p-1 md:p-2 border-[1px]">
+                        <img className='h-8 w-8 md:h-10 md:w-10' src={videoLogo} alt="" />
+                    </div>
+                    <div className="bg-red-600 h-12 w-12 md:h-14 md:w-14 rounded-full p-0.5 md:p-1">
+                        <img className='h-12 w-12' src={callLogo} alt="" />
+                    </div> 
+                    <div className="h-10 w-10 md:h-14 bg-gray-950   md:w-14 rounded-full p-1 md:p-2 border-[1px]">
+                        <img className='h-8 w-8 md:h-10 md:w-10' src={micLogo} alt="" />
+                    </div>
+                </div>
+
             </div>
         </div>
     )
